@@ -1,32 +1,17 @@
 {
   "name": "aperturepro/crm",
-  "description": "A privacy-focused photography CRM.",
+  "description": "Privacy-focused Photography CRM",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
-  "authors": [
-    {
-      "name": "AperturePro",
-      "email": "hello@aperturepro.app"
-    }
-  ],
+  "authors": [ { "name": "AperturePro", "email": "support@aperturepro.app" } ],
   "require": {
     "php": ">=7.4",
     "stripe/stripe-php": "^10.0",
     "google/apiclient": "^2.15.0",
     "dompdf/dompdf": "^2.0"
   },
-  "autoload": {
-    "psr-4": {
-      "AperturePro\\": "includes/"
-    }
-  },
-  "config": {
-    "optimize-autoloader": true
-  },
-  "scripts": {
-    "post-update-cmd": "Google\\Task\\Composer::cleanup"
-  },
-  "extra": {
-    "google/apiclient-services": [ "Calendar" ]
-  }
+  "autoload": { "psr-4": { "AperturePro\\": "includes/" } },
+  "config": { "optimize-autoloader": true },
+  "scripts": { "post-update-cmd": "Google\\Task\\Composer::cleanup" },
+  "extra": { "google/apiclient-services": [ "Calendar" ] }
 }
