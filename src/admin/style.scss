@@ -1,4 +1,3 @@
-/* src/admin/style.scss */
 $teal-dark: #007B9E;
 $teal-light: #00B4C5;
 $cream: #FEFDF0;
@@ -12,7 +11,7 @@ $grey-border: #E2E8F0;
     min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #f3f4f6;
-    margin-left: -20px; /* Counteract WP Admin padding */
+    margin-left: -20px; 
     
     .ap-nav {
         width: 240px;
@@ -21,7 +20,7 @@ $grey-border: #E2E8F0;
         padding: 30px 20px;
         display: flex;
         flex-direction: column;
-        gap: 8px; /* Slightly tighter gap */
+        gap: 8px;
         
         h1 { font-size: 20px; font-weight: 700; color: $teal-dark; margin: 0 0 30px 0; padding-bottom: 20px; border-bottom: 1px solid $grey-border; }
 
@@ -33,13 +32,12 @@ $grey-border: #E2E8F0;
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.2s;
-            border: 1px solid transparent; /* Prevent layout shift on hover */
+            border: 1px solid transparent;
 
             &:hover { background: $cream; color: $teal-dark; }
             
-            /* ACTIVE STATE FIX */
             &.active {
-                background: #e0f2fe; /* Light blue background */
+                background: #e0f2fe; 
                 color: $teal-dark;
                 font-weight: 700;
                 border-color: #bae6fd;
@@ -50,27 +48,24 @@ $grey-border: #E2E8F0;
     main { flex: 1; padding: 40px; max-width: 1200px; }
 }
 
-/* PIPELINE TABLE FIXES */
 .ap-leads {
     .header {
         display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
         h2 { margin: 0; font-size: 24px; color: $text; }
-        /* Style the "Create Invoice" button better */
         .btn-primary { background: $coral; color: white; padding: 10px 20px; border-radius: 6px; border:none; cursor: pointer; font-weight: 600; }
     }
 
-    /* Modern Table Container */
     .table-container {
         background: white;
         border-radius: 8px;
         box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         border: 1px solid $grey-border;
-        overflow: hidden; /* Rounds corners */
+        overflow: hidden;
     }
 
     table {
         width: 100%;
-        border-collapse: collapse; /* Critical for clean lines */
+        border-collapse: collapse;
         
         thead {
             background: #f8fafc;
@@ -91,7 +86,6 @@ $grey-border: #E2E8F0;
             tr {
                 border-bottom: 1px solid $grey-border;
                 transition: background 0.1s;
-                
                 &:last-child { border-bottom: none; }
                 &:hover { background: #fdfdfd; }
             }
@@ -103,9 +97,22 @@ $grey-border: #E2E8F0;
             }
         }
     }
+    
+    .badge {
+        display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+        &.new { background: #e0f2fe; color: $teal-dark; }
+        &.booked { background: #dcfce7; color: #166534; }
+        &.closed { background: #f1f5f9; color: #64748b; }
+    }
 }
 
-/* SETTINGS CARD FIXES */
+.ap-settings-container {
+    header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+        h2 { font-size: 28px; margin: 0; color: $text; }
+    }
+}
+
 .ap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
 
 .ap-card {
@@ -120,6 +127,78 @@ $grey-border: #E2E8F0;
         input {
             width: 100%; padding: 12px; border: 1px solid $grey-border; border-radius: 6px; font-size: 15px; box-sizing: border-box;
             &:focus { outline: none; border-color: $teal-dark; box-shadow: 0 0 0 3px rgba(0, 123, 158, 0.1); }
+            &.code { font-family: monospace; background: #f8fafc; }
         }
+    }
+}
+
+.btn-primary {
+    background-color: $coral; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background-color 0.2s;
+    &:hover:not(:disabled) { background-color: darken($coral, 10%); }
+    &:disabled { opacity: 0.7; cursor: not-allowed; }
+}
+
+.btn-secondary {
+    background: white; border: 1px solid $grey-border; color: $text; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    &:hover { background: #f8fafc; border-color: $teal-dark; color: $teal-dark; }
+}
+
+/* Sandbox Toggle */
+.sandbox-toggle {
+    display: flex; align-items: center; background: #fff; padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; margin-right: 15px;
+    .label { margin-left: 10px; font-weight: 700; font-size: 11px; color: #555; }
+}
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+input:checked + .slider { background-color: #F59E0B; }
+input:checked + .slider:before { transform: translateX(20px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+.test-result.success { color: #166534; font-weight: 600; }
+.test-result.error { color: #dc2626; font-weight: 600; }
+.ap-toast { position: fixed; bottom: 30px; right: 30px; background: $teal-dark; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); animation: slideUp 0.3s ease-out; z-index: 9999; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Builder */
+.builder {
+    max-width: 800px;
+    input { margin-bottom: 20px; }
+    .q-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid $grey-border; border-left: 4px solid $teal-light; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+    .controls { display: flex; gap: 10px; padding-top: 20px; border-top: 1px solid $grey-border; }
+}
+
+/* DAM (Gallery) */
+.ap-dam-interface {
+    display: flex; height: 75vh; background: white; border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden;
+    .dam-sidebar {
+        width: 250px; background: #F8FAFC; border-right: 1px solid #E2E8F0; display: flex; flex-direction: column;
+        .dam-header { padding: 15px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; h4 { margin: 0; font-size: 14px; text-transform: uppercase; color: #64748B; } }
+        .album-list {
+            list-style: none; padding: 0; margin: 0; overflow-y: auto;
+            li { padding: 12px 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; &:hover { background: #E2E8F0; } &.active { background: #E0F2FE; color: #007B9E; font-weight: 500; } }
+        }
+    }
+    .dam-browser {
+        flex: 1; display: flex; flex-direction: column; background: white;
+        .dam-toolbar { padding: 10px 20px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; font-size: 13px; color: #666; background: #fff; }
+        .dam-grid {
+            flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; align-content: start;
+            .dam-thumb {
+                cursor: pointer; border: 2px solid transparent; padding: 5px; border-radius: 6px;
+                &:hover { background: #F8FAFC; }
+                &.selected { background: #E0F2FE; border-color: #007B9E; }
+                .img-wrap { height: 100px; background: #eee; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; margin-bottom: 5px; img { max-width: 100%; max-height: 100%; } }
+                .label { font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            }
+        }
+    }
+    .dam-properties {
+        width: 300px; border-left: 1px solid #E2E8F0; background: #F8FAFC; padding: 20px; overflow-y: auto;
+        h4 { margin: 0 0 20px 0; font-size: 14px; text-transform: uppercase; color: #64748B; border-bottom: 1px solid #E2E8F0; padding-bottom: 10px; }
+        .preview img { width: 100%; border-radius: 4px; border: 1px solid #ddd; margin-bottom: 20px; }
+        .prop-group { margin-bottom: 15px; label { display: block; font-size: 11px; text-transform: uppercase; color: #94A3B8; margin-bottom: 4px; } input { width: 100%; padding: 8px; font-size: 13px; border: 1px solid #CBD5E1; border-radius: 4px; background: #fff; } }
     }
 }
