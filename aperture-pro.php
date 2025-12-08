@@ -44,4 +44,5 @@ add_action( 'rest_api_init', function () {
     ( new \AperturePro\Api\Gallery_Controller() )->register_routes();
     ( new \AperturePro\Api\Questionnaire_Controller() )->register_routes();
     ( new \AperturePro\Api\Export_Controller() )->register_routes();
+    (new \AperturePro\Api\Contacts_Controller())->register_routes();
 });
