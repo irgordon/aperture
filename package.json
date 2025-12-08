@@ -1,16 +1,22 @@
 {
   "name": "aperture-pro",
   "version": "1.0.0",
+  "description": "React build scripts for AperturePro CRM",
   "main": "index.js",
+  "license": "GPL-2.0-or-later",
   "scripts": {
     "start": "wp-scripts start",
-    "build": "wp-scripts build"
+    "build": "wp-scripts build",
+    "format": "wp-scripts format",
+    "lint:js": "wp-scripts lint-js",
+    "packages-update": "wp-scripts packages-update"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.14.0",
     "@wordpress/api-fetch": "^6.46.0",
+    "@wordpress/url": "^3.47.0",
     "@stripe/stripe-js": "^2.1.0",
     "@stripe/react-stripe-js": "^2.3.0"
   },
