@@ -1,9 +1,9 @@
 import { createRoot } from 'react-dom/client';
-import { HashRouter, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, NavLink } from 'react-router-dom'; // Changed Link to NavLink
 import LeadList from './components/LeadList';
 import SettingsPage from './components/SettingsPage';
 import QuestionnaireBuilder from './components/QuestionnaireBuilder';
-import GalleryManager from './components/GalleryManager'; // Import the new manager
+import GalleryManager from './components/GalleryManager';
 import './style.scss';
 
 const AdminApp = () => (
@@ -11,15 +11,16 @@ const AdminApp = () => (
         <div className="ap-layout">
             <nav className="ap-nav">
                 <h1>AperturePro</h1>
-                <Link to="/">Pipeline</Link>
-                <Link to="/galleries">Galleries</Link> {/* NEW TAB */}
-                <Link to="/forms">Forms</Link>
-                <Link to="/settings">Settings</Link>
+                {/* Use NavLink for automatic active class */}
+                <NavLink to="/" end>Pipeline</NavLink>
+                <NavLink to="/galleries">Galleries</NavLink>
+                <NavLink to="/forms">Forms</NavLink>
+                <NavLink to="/settings">Settings</NavLink>
             </nav>
             <main>
                 <Routes>
                     <Route path="/" element={<LeadList />} />
-                    <Route path="/galleries" element={<GalleryManager />} /> {/* NEW ROUTE */}
+                    <Route path="/galleries" element={<GalleryManager />} />
                     <Route path="/forms" element={<QuestionnaireBuilder />} />
                     <Route path="/settings" element={<SettingsPage />} />
                 </Routes>
