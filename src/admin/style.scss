@@ -1,4 +1,4 @@
-/* Variables based on your uploaded palette */
+/* src/admin/style.scss */
 $teal-dark: #007B9E;
 $teal-light: #00B4C5;
 $cream: #FEFDF0;
@@ -7,11 +7,10 @@ $coral: #F06C6C;
 $text: #2C3E50;
 $grey-border: #E2E8F0;
 
-/* Main Layout */
 .ap-layout {
     display: flex;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #f3f4f6;
     margin-left: -20px; /* Counteract WP Admin padding */
     
@@ -22,16 +21,9 @@ $grey-border: #E2E8F0;
         padding: 30px 20px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px; /* Slightly tighter gap */
         
-        h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: $teal-dark;
-            margin: 0 0 30px 0;
-            padding-bottom: 20px;
-            border-bottom: 1px solid $grey-border;
-        }
+        h1 { font-size: 20px; font-weight: 700; color: $teal-dark; margin: 0 0 30px 0; padding-bottom: 20px; border-bottom: 1px solid $grey-border; }
 
         a {
             display: block;
@@ -41,261 +33,93 @@ $grey-border: #E2E8F0;
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.2s;
+            border: 1px solid transparent; /* Prevent layout shift on hover */
 
-            &:hover {
-                background: $cream;
-                color: $teal-dark;
-            }
+            &:hover { background: $cream; color: $teal-dark; }
             
-            &.active { /* You can add active class logic in React Router */
-                background: $teal-dark;
-                color: white;
+            /* ACTIVE STATE FIX */
+            &.active {
+                background: #e0f2fe; /* Light blue background */
+                color: $teal-dark;
+                font-weight: 700;
+                border-color: #bae6fd;
             }
         }
     }
 
-    main {
-        flex: 1;
-        padding: 40px;
-        max-width: 1200px;
-    }
+    main { flex: 1; padding: 40px; max-width: 1200px; }
 }
-$teal-dark: #007B9E;
-$teal-light: #00B4C5;
-$cream: #FEFDF0;
-$peach: #FCDDBD;
-$coral: #F06C6C;
-$text: #2C3E50;
-$grey-border: #E2E8F0;
 
-/* --- NEW: Pipeline (LeadList) Styles --- */
+/* PIPELINE TABLE FIXES */
 .ap-leads {
     .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
         h2 { margin: 0; font-size: 24px; color: $text; }
+        /* Style the "Create Invoice" button better */
+        .btn-primary { background: $coral; color: white; padding: 10px 20px; border-radius: 6px; border:none; cursor: pointer; font-weight: 600; }
+    }
+
+    /* Modern Table Container */
+    .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        border: 1px solid $grey-border;
+        overflow: hidden; /* Rounds corners */
     }
 
     table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-
-        thead th {
+        border-collapse: collapse; /* Critical for clean lines */
+        
+        thead {
             background: #f8fafc;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-            padding: 15px 20px;
-            text-align: left;
-            border-bottom: 1px solid $grey-border;
-        }
-
-        tbody td {
-            padding: 15px 20px;
-            border-bottom: 1px solid $grey-border;
-            color: $text;
-            font-size: 14px;
-        }
-
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: #fdfdfd; }
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        
-        &.new { background: #e0f2fe; color: $teal-dark; }
-        &.booked { background: #dcfce7; color: #166534; }
-        &.closed { background: #f1f5f9; color: #64748b; }
-    }
-}
-
-/* --- NEW: Form Builder Styles --- */
-.builder {
-    max-width: 800px;
-    
-    h2 { margin-bottom: 20px; color: $text; }
-
-    input {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 20px;
-        border: 1px solid $grey-border;
-        border-radius: 6px;
-        font-size: 16px;
-        &:focus { outline: none; border-color: $teal-dark; }
-    }
-
-    .stack {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 30px;
-    }
-
-    .q-card {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid $grey-border;
-        border-left: 4px solid $teal-light;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-
-        span { font-weight: 600; color: $teal-dark; font-size: 12px; text-transform: uppercase; }
-        
-        input { margin-bottom: 0; font-size: 14px; }
-    }
-
-    .controls {
-        display: flex;
-        gap: 10px;
-        padding-top: 20px;
-        border-top: 1px solid $grey-border;
-
-        button {
-            background: white;
-            border: 1px solid $teal-dark;
-            color: $teal-dark;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-
-            &:hover { background: #f0f9ff; }
+            border-bottom: 2px solid $grey-border;
             
-            &.save {
-                background: $coral;
-                border-color: $coral;
-                color: white;
-                margin-left: auto;
-                &:hover { background: darken($coral, 5%); }
+            th {
+                text-align: left;
+                padding: 16px 24px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #64748b;
+            }
+        }
+
+        tbody {
+            tr {
+                border-bottom: 1px solid $grey-border;
+                transition: background 0.1s;
+                
+                &:last-child { border-bottom: none; }
+                &:hover { background: #fdfdfd; }
+            }
+
+            td {
+                padding: 16px 24px;
+                font-size: 14px;
+                color: $text;
             }
         }
     }
 }
 
-/* Settings Page Specifics */
-.ap-settings-container {
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-
-        h2 { font-size: 28px; margin: 0; color: $text; }
-    }
-}
-
-.ap-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 30px;
-}
+/* SETTINGS CARD FIXES */
+.ap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
 
 .ap-card {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid $grey-border;
+    background: white; padding: 30px; border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid $grey-border;
 
-    h3 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: $teal-dark;
-        font-size: 18px;
-        border-bottom: 1px solid $grey-border;
-        padding-bottom: 15px;
-    }
+    h3 { margin-top: 0; margin-bottom: 20px; color: $teal-dark; font-size: 18px; border-bottom: 1px solid $grey-border; padding-bottom: 15px; }
 
     .form-group {
         margin-bottom: 20px;
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px; color: #64748b; text-transform: uppercase; }
         input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid $grey-border;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: border-color 0.2s;
-            box-sizing: border-box; /* Fixes width overflow */
-
-            &:focus {
-                outline: none;
-                border-color: $teal-dark;
-                box-shadow: 0 0 0 3px rgba(0, 123, 158, 0.1);
-            }
-            
-            &.code {
-                font-family: monospace;
-                background: #f8fafc;
-            }
+            width: 100%; padding: 12px; border: 1px solid $grey-border; border-radius: 6px; font-size: 15px; box-sizing: border-box;
+            &:focus { outline: none; border-color: $teal-dark; box-shadow: 0 0 0 3px rgba(0, 123, 158, 0.1); }
         }
     }
 }
-
-/* Buttons */
-.btn-primary {
-    background-color: $coral;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-
-    &:hover:not(:disabled) {
-        background-color: darken($coral, 10%);
-    }
-
-    &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
-}
-
-/* Toast Notification */
-.ap-toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: $teal-dark;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    animation: slideUp 0.3s ease-out;
-    z-index: 9999;
-}
-
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
