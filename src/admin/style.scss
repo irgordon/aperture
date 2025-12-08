@@ -60,6 +60,137 @@ $grey-border: #E2E8F0;
         max-width: 1200px;
     }
 }
+$teal-dark: #007B9E;
+$teal-light: #00B4C5;
+$cream: #FEFDF0;
+$peach: #FCDDBD;
+$coral: #F06C6C;
+$text: #2C3E50;
+$grey-border: #E2E8F0;
+
+/* --- NEW: Pipeline (LeadList) Styles --- */
+.ap-leads {
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        h2 { margin: 0; font-size: 24px; color: $text; }
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+
+        thead th {
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid $grey-border;
+        }
+
+        tbody td {
+            padding: 15px 20px;
+            border-bottom: 1px solid $grey-border;
+            color: $text;
+            font-size: 14px;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #fdfdfd; }
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        
+        &.new { background: #e0f2fe; color: $teal-dark; }
+        &.booked { background: #dcfce7; color: #166534; }
+        &.closed { background: #f1f5f9; color: #64748b; }
+    }
+}
+
+/* --- NEW: Form Builder Styles --- */
+.builder {
+    max-width: 800px;
+    
+    h2 { margin-bottom: 20px; color: $text; }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid $grey-border;
+        border-radius: 6px;
+        font-size: 16px;
+        &:focus { outline: none; border-color: $teal-dark; }
+    }
+
+    .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .q-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid $grey-border;
+        border-left: 4px solid $teal-light;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+
+        span { font-weight: 600; color: $teal-dark; font-size: 12px; text-transform: uppercase; }
+        
+        input { margin-bottom: 0; font-size: 14px; }
+    }
+
+    .controls {
+        display: flex;
+        gap: 10px;
+        padding-top: 20px;
+        border-top: 1px solid $grey-border;
+
+        button {
+            background: white;
+            border: 1px solid $teal-dark;
+            color: $teal-dark;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+
+            &:hover { background: #f0f9ff; }
+            
+            &.save {
+                background: $coral;
+                border-color: $coral;
+                color: white;
+                margin-left: auto;
+                &:hover { background: darken($coral, 5%); }
+            }
+        }
+    }
+}
 
 /* Settings Page Specifics */
 .ap-settings-container {
