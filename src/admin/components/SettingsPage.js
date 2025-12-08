@@ -5,9 +5,12 @@ const SettingsPage = () => {
     // Initialize with empty strings to prevent "false" flashing
     const [settings, setSettings] = useState({
         branding: { company_name: '', logo_url: '', support_email: '' },
-        stripe: { public_key: '', secret_key: '' }
+        stripe: { public_key: '', secret_key: '' },
+        google: { client_id: '', client_secret: '' },
+        system: { sandbox_mode: 'yes' }
     });
     const [status, setStatus] = useState('');
+    const [testStatus, setTestStatus] = useState(null);
 
     useEffect(() => {
         apiFetch({ path: '/aperture/v1/settings' }).then(data => {
@@ -23,6 +26,13 @@ const SettingsPage = () => {
                 stripe: {
                     public_key: clean(data.stripe.public_key),
                     secret_key: clean(data.stripe.secret_key)
+                },
+                google: {
+                    client_id: clean(data.google.client_id),
+                    client_secret: clean(data.google.client_secret)
+                },
+                system: {
+                    sandbox_mode: clean(data.system?.sandbox_mode || 'yes')
                 }
             });
         });
@@ -33,14 +43,12 @@ const SettingsPage = () => {
         try {
             await apiFetch({ path: '/aperture/v1/settings', method: 'POST', data: settings });
             setStatus('saved');
-            // Clear success message after 3 seconds
             setTimeout(() => setStatus(''), 3000);
         } catch (e) {
             setStatus('error');
         }
     };
 
-    // Helper to update nested state
     const update = (section, field, value) => {
         setSettings(prev => ({
             ...prev,
@@ -48,13 +56,43 @@ const SettingsPage = () => {
         }));
     };
 
+    const testStripe = async () => {
+        setTestStatus({ msg: 'Testing...', type: 'info' });
+        try {
+            const res = await apiFetch({ 
+                path: '/aperture/v1/settings/test-stripe', 
+                method: 'POST', 
+                data: { secret_key: settings.stripe.secret_key } 
+            });
+            setTestStatus({ msg: `✅ ${res.message} (${res.mode})`, type: 'success' });
+        } catch (err) {
+            setTestStatus({ msg: `❌ Failed: ${err.message}`, type: 'error' });
+        }
+    };
+
     return (
         <div className="ap-settings-container">
             <header>
                 <h2>Configuration</h2>
-                <button className="btn-primary" onClick={save} disabled={status === 'saving'}>
-                    {status === 'saving' ? 'Saving...' : 'Save Changes'}
-                </button>
+                <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
+                    <div className="sandbox-toggle">
+                         <label className="switch">
+                            <input 
+                                type="checkbox" 
+                                checked={settings.system.sandbox_mode === 'yes'} 
+                                onChange={e => update('system', 'sandbox_mode', e.target.checked ? 'yes' : 'no')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                        <span className="label">
+                            {settings.system.sandbox_mode === 'yes' ? 'SANDBOX MODE' : 'PRODUCTION MODE'}
+                        </span>
+                    </div>
+
+                    <button className="btn-primary" onClick={save} disabled={status === 'saving'}>
+                        {status === 'saving' ? 'Saving...' : 'Save Changes'}
+                    </button>
+                </div>
             </header>
 
             {status === 'saved' && <div className="ap-toast">Settings Saved Successfully</div>}
@@ -106,6 +144,34 @@ const SettingsPage = () => {
                             type="password" 
                             value={settings.stripe.secret_key} 
                             onChange={e => update('stripe', 'secret_key', e.target.value)} 
+                        />
+                    </div>
+                    <div className="test-area" style={{marginTop:'15px', borderTop:'1px solid #eee', paddingTop:'15px'}}>
+                        <button className="btn-secondary small" onClick={testStripe}>Test Connection</button>
+                        {testStatus && (
+                            <span className={`test-result ${testStatus.type}`} style={{marginLeft:'10px', fontSize:'13px'}}>
+                                {testStatus.msg}
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                <div className="ap-card">
+                    <h3>Google Integration</h3>
+                    <div className="form-group">
+                        <label>Client ID</label>
+                        <input 
+                            type="text" 
+                            value={settings.google.client_id} 
+                            onChange={e => update('google', 'client_id', e.target.value)} 
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Client Secret</label>
+                        <input 
+                            type="password" 
+                            value={settings.google.client_secret} 
+                            onChange={e => update('google', 'client_secret', e.target.value)} 
                         />
                     </div>
                 </div>
