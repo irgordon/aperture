@@ -1,0 +1,39 @@
+$teal: #007B9E;
+$bg: #F3F4F6;
+$border: #E5E7EB;
+
+.ap-portal-login {
+    display: flex; justify-content: center; padding: 100px 20px; background: $bg; min-height: 100vh;
+    .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    h2 { text-align: center; color: $teal; margin-bottom: 20px; }
+    input { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: $teal; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+}
+
+.ap-portal-dash {
+    max-width: 1200px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    
+    header { 
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px; 
+        h1 { margin: 0; color: #333; }
+        button { background: white; border: 1px solid $teal; color: $teal; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+    }
+
+    .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    
+    .card { 
+        background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; 
+        h3 { margin-top: 0; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; color: $teal; font-size: 18px; }
+    }
+
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
+    
+    .task-item { padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; color: #555; }
+
+    .status {
+        padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+        &.new { background: #e0f2fe; color: $teal; }
+        &.paid, &.signed { background: #dcfce7; color: #166534; }
+        &.unpaid { background: #fee2e2; color: #991b1b; }
+    }
+}
