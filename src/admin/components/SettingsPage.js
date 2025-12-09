@@ -8,13 +8,30 @@ const SettingsPage = () => {
     const [status, setStatus] = useState('');
     const fileInput = useRef(null);
 
+    // Sanitization Helper: Converts null/false to empty string
+    const clean = (val) => (val === false || val === null || val === undefined) ? '' : val;
+
     useEffect(() => {
         apiFetch({ path: '/aperture/v1/settings' }).then(data => {
             const s = {
-                branding: { company_name:'', logo_url:'', support_email:'', address:'', phone:'', ...data.branding },
-                stripe: { public_key:'', secret_key:'', ...data.stripe },
-                google: { client_id:'', client_secret:'', ...data.google },
-                system: { sandbox_mode:'yes', ...data.system }
+                branding: { 
+                    company_name: clean(data.branding.company_name), 
+                    logo_url: clean(data.branding.logo_url), 
+                    support_email: clean(data.branding.support_email), 
+                    address: clean(data.branding.address), 
+                    phone: clean(data.branding.phone) 
+                },
+                stripe: { 
+                    public_key: clean(data.stripe.public_key), 
+                    secret_key: clean(data.stripe.secret_key) 
+                },
+                google: { 
+                    client_id: clean(data.google.client_id), 
+                    client_secret: clean(data.google.client_secret) 
+                },
+                system: { 
+                    sandbox_mode: clean(data.system?.sandbox_mode || 'yes') 
+                }
             };
             setSettings(s);
         });
