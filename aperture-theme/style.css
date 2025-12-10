@@ -1,0 +1,193 @@
+/*
+Theme Name: Aperture Theme
+Theme URI: https://aperturepro.app
+Author: AperturePro
+Author URI: https://aperturepro.app
+Description: A modern SaaS-style WordPress theme designed for AperturePro CRM.
+Version: 1.0.0
+License: GPLv2 or later
+Text Domain: aperture-theme
+*/
+
+:root {
+    --teal-dark: #0f766e;
+    --teal-primary: #14b8a6;
+    --teal-light: #ccfbf1;
+    --coral: #f43f5e;
+    --slate-900: #0f172a;
+    --slate-600: #475569;
+    --slate-200: #e2e8f0;
+    --bg-body: #f8fafc;
+    --white: #ffffff;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --radius-card: 16px;
+    --radius-btn: 8px;
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--bg-body);
+    color: var(--slate-900);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--slate-900);
+}
+
+a {
+    color: var(--teal-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--teal-dark);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- Layout --- */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.site-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--slate-200);
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.site-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-branding a {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--teal-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.main-navigation ul {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-navigation a {
+    color: var(--slate-600);
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.main-navigation a:hover {
+    color: var(--teal-primary);
+}
+
+/* Mobile Menu */
+@media (max-width: 768px) {
+    .site-header .container {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .main-navigation ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+.site-content {
+    padding: 40px 0;
+    min-height: calc(100vh - 160px);
+}
+
+.site-footer {
+    background: var(--white);
+    border-top: 1px solid var(--slate-200);
+    padding: 30px 0;
+    text-align: center;
+    color: var(--slate-600);
+    font-size: 14px;
+}
+
+/* --- Components --- */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--teal-primary);
+    color: var(--white);
+    border-radius: var(--radius-btn);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: var(--teal-dark);
+    color: var(--white);
+    transform: translateY(-1px);
+}
+
+/* --- Plugin Compatibility & Page Styles --- */
+.page-title {
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.entry-content {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 40px;
+    border: 1px solid var(--slate-200);
+}
+
+@media (max-width: 768px) {
+    .entry-content {
+        padding: 20px;
+    }
+}
+
+/* Specific Wrapper for Aperture Portal */
+#aperture-client-portal,
+#aperture-pro-contact-form {
+    width: 100%;
+}
+
+/* If the shortcode renders into a container, ensure it doesn't overflow */
+#aperture-client-portal .ap-portal-dash,
+#aperture-pro-contact-form form {
+    max-width: 100%;
+}
