@@ -40,7 +40,6 @@ class Installer {
         CREATE TABLE {$wpdb->prefix}ap_leads (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             contact_id mediumint(9),
-            assigned_to bigint(20),
             project_hash varchar(64) UNIQUE,
             title varchar(255),
             status varchar(50) DEFAULT 'new',
@@ -60,9 +59,6 @@ class Installer {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             lead_id mediumint(9),
             description varchar(255),
-            long_description longtext,
-            priority varchar(20) DEFAULT 'medium',
-            status varchar(20) DEFAULT 'pending',
             is_completed boolean DEFAULT 0,
             due_date date,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,

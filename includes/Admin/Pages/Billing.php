@@ -26,7 +26,7 @@ class Billing {
         <div class="wrap">
             <h1>Billing & Contracts</h1>
 
-            <h2>Invoices <a href="<?php echo admin_url('admin.php?page=aperture-billing&action=new_invoice'); ?>" class="page-title-action">Add New</a></h2>
+            <h2>Invoices <a href="#" class="page-title-action">Add New</a></h2>
             <?php $invoices_table->display(); ?>
 
             <br><hr><br>
@@ -64,37 +64,6 @@ class Billing {
                 <?php wp_editor($content, 'contract_content'); ?>
                 <br>
                 <?php submit_button('Save Contract'); ?>
-                <a href="?page=aperture-billing">Back</a>
-            </form>
-        </div>
-        <?php
-    }
-
-    private static function render_invoice_editor() {
-        // Basic Invoice Form for completeness
-        global $wpdb;
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('save_invoice')) {
-            $amount = floatval($_POST['amount']);
-            $wpdb->insert("{$wpdb->prefix}ap_invoices", [
-                'amount' => $amount,
-                'total_amount' => $amount,
-                'status' => 'unpaid',
-                'invoice_number' => 'INV-' . time(),
-                'due_date' => sanitize_text_field($_POST['due_date'])
-            ]);
-            echo '<div class="notice notice-success"><p>Invoice Created.</p></div>';
-        }
-        ?>
-        <div class="wrap">
-            <h1>New Invoice</h1>
-            <form method="post">
-                <?php wp_nonce_field('save_invoice'); ?>
-                <table class="form-table">
-                    <tr><th>Amount ($)</th><td><input type="number" step="0.01" name="amount" required></td></tr>
-                    <tr><th>Due Date</th><td><input type="date" name="due_date" required></td></tr>
-                </table>
-                <?php submit_button('Create Invoice'); ?>
-                <a href="?page=aperture-billing">Back</a>
             </form>
         </div>
         <?php
