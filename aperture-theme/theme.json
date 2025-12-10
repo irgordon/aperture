@@ -1,0 +1,33 @@
+{
+    "version": 2,
+    "settings": {
+        "color": {
+            "palette": [
+                {
+                    "slug": "primary",
+                    "color": "var(--teal-primary)",
+                    "name": "Primary"
+                },
+                {
+                    "slug": "secondary",
+                    "color": "var(--teal-dark)",
+                    "name": "Secondary"
+                },
+                {
+                    "slug": "background",
+                    "color": "var(--bg-body)",
+                    "name": "Background"
+                },
+                {
+                    "slug": "white",
+                    "color": "#ffffff",
+                    "name": "White"
+                }
+            ]
+        },
+        "layout": {
+            "contentSize": "1200px",
+            "wideSize": "1400px"
+        }
+    }
+}

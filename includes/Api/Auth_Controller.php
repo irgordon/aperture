@@ -11,6 +11,9 @@ class Auth_Controller extends WP_REST_Controller {
         register_rest_route($this->namespace, '/auth/user', [
             'methods' => 'GET', 'callback' => [$this, 'get_user'], 'permission_callback' => function() { return is_user_logged_in(); }
         ]);
+        register_rest_route($this->namespace, '/auth/users', [
+            'methods' => 'GET', 'callback' => [$this, 'get_all_users'], 'permission_callback' => function() { return current_user_can('manage_options'); }
+        ]);
     }
     public function login($request) {
         $params = $request->get_json_params();
@@ -21,5 +24,10 @@ class Auth_Controller extends WP_REST_Controller {
     public function get_user() {
         $user = wp_get_current_user();
         return new WP_REST_Response(['id' => $user->ID, 'email' => $user->user_email, 'name' => $user->display_name]);
+    }
+    public function get_all_users() {
+        $users = get_users(['role__in' => ['administrator', 'editor', 'author']]); // Adjust roles as needed
+        $data = array_map(function($u) { return ['id' => $u->ID, 'name' => $u->display_name, 'email' => $u->user_email]; }, $users);
+        return new WP_REST_Response($data);
     }
 }
