@@ -10,6 +10,7 @@ class Settings {
             <h2 class="nav-tab-wrapper">
                 <a href="?page=aperture-settings&tab=general" class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
                 <a href="?page=aperture-settings&tab=branding" class="nav-tab <?php echo $active_tab == 'branding' ? 'nav-tab-active' : ''; ?>">Branding</a>
+                <a href="?page=aperture-settings&tab=templates" class="nav-tab <?php echo $active_tab == 'templates' ? 'nav-tab-active' : ''; ?>">Templates</a>
                 <a href="?page=aperture-settings&tab=automation" class="nav-tab <?php echo $active_tab == 'automation' ? 'nav-tab-active' : ''; ?>">Automation</a>
                 <a href="?page=aperture-settings&tab=logs" class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
             </h2>
@@ -21,13 +22,15 @@ class Settings {
                     <?php self::render_general(); ?>
                 <?php elseif($active_tab == 'branding'): ?>
                     <?php self::render_branding(); ?>
+                <?php elseif($active_tab == 'templates'): ?>
+                    <?php self::render_templates(); ?>
                 <?php elseif($active_tab == 'automation'): ?>
                     <?php self::render_automation(); ?>
                 <?php elseif($active_tab == 'logs'): ?>
                     <?php self::render_logs(); ?>
                 <?php endif; ?>
 
-                <?php if($active_tab != 'logs' && $active_tab != 'automation') submit_button(); ?>
+                <?php if($active_tab == 'general' || $active_tab == 'branding') submit_button(); ?>
             </form>
         </div>
         <?php
@@ -35,7 +38,7 @@ class Settings {
 
     private static function render_general() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['company_name'])) {
-            check_admin_referer('save_settings', 'aperture_settings_nonce'); // CSRF Protection
+            check_admin_referer('save_settings', 'aperture_settings_nonce');
 
             update_option('aperture_company_name', sanitize_text_field($_POST['company_name']));
             update_option('aperture_logo_url', esc_url_raw($_POST['logo_url']));
@@ -72,7 +75,7 @@ class Settings {
 
     private static function render_branding() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['brand_primary'])) {
-            check_admin_referer('save_settings', 'aperture_settings_nonce'); // CSRF Protection
+            check_admin_referer('save_settings', 'aperture_settings_nonce');
 
             update_option('aperture_brand_primary', sanitize_hex_color($_POST['brand_primary']));
             update_option('aperture_brand_secondary', sanitize_hex_color($_POST['brand_secondary']));
@@ -91,6 +94,82 @@ class Settings {
         <?php
     }
 
+    private static function render_templates() {
+        $action = isset($_GET['action']) ? $_GET['action'] : 'list';
+        $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+        if ($action === 'edit' && $id) {
+            self::render_template_editor($id);
+        } else {
+            self::render_template_list();
+        }
+    }
+
+    private static function render_template_list() {
+        $templates = \AperturePro\Utils\TemplateManager::get_templates();
+        echo '<table class="widefat fixed striped">';
+        echo '<thead><tr><th>Name</th><th>Subject</th><th>Actions</th></tr></thead><tbody>';
+        foreach ($templates as $t) {
+            $edit_link = admin_url('admin.php?page=aperture-settings&tab=templates&action=edit&id=' . $t->id);
+            echo "<tr><td>" . esc_html($t->name) . "</td><td>" . esc_html($t->subject) . "</td>";
+            echo "<td><a href='$edit_link' class='button'>Edit</a></td></tr>";
+        }
+        echo '</tbody></table>';
+    }
+
+    private static function render_template_editor($id) {
+        $template = \AperturePro\Utils\TemplateManager::get_template($id);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['template_subject'])) {
+            check_admin_referer('save_settings', 'aperture_settings_nonce');
+
+            if (isset($_POST['rollback_version'])) {
+                 \AperturePro\Utils\TemplateManager::rollback(intval($_POST['rollback_version']));
+                 echo '<div class="notice notice-success"><p>Rolled back successfully.</p></div>';
+                 $template = \AperturePro\Utils\TemplateManager::get_template($id); // Reload
+            } else {
+                 \AperturePro\Utils\TemplateManager::update_template($id, sanitize_text_field($_POST['template_subject']), wp_kses_post($_POST['template_body']));
+                 echo '<div class="notice notice-success"><p>Template Updated.</p></div>';
+                 $template = \AperturePro\Utils\TemplateManager::get_template($id); // Reload
+            }
+        }
+
+        $versions = \AperturePro\Utils\TemplateManager::get_versions($id);
+        ?>
+        <h3>Edit Template: <?php echo esc_html($template->name); ?></h3>
+        <p><a href="?page=aperture-settings&tab=templates">Back to list</a></p>
+
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 2;">
+                <table class="form-table">
+                    <tr><th>Subject</th><td><input type="text" name="template_subject" value="<?php echo esc_attr($template->subject); ?>" class="regular-text" style="width: 100%;"></td></tr>
+                    <tr><th>Body</th><td><textarea name="template_body" rows="15" style="width: 100%;"><?php echo esc_textarea($template->body); ?></textarea>
+                    <p class="description">Available vars: {client_name}, {portal_link}, {invoice_number}, etc.</p></td></tr>
+                </table>
+                <?php submit_button('Save Changes'); ?>
+            </div>
+
+            <div style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ccd0d4;">
+                <h4>Version History</h4>
+                <?php if (empty($versions)): ?>
+                    <p>No previous versions.</p>
+                <?php else: ?>
+                    <ul style="list-style: none; padding: 0;">
+                        <?php foreach($versions as $v): ?>
+                        <li style="border-bottom: 1px solid #eee; padding: 8px 0;">
+                            <strong><?php echo $v->created_at; ?></strong><br>
+                            <span style="color: #666; font-size: 12px;"><?php echo esc_html(substr($v->subject, 0, 30)); ?>...</span>
+                            <br>
+                            <button type="submit" name="rollback_version" value="<?php echo $v->id; ?>" class="button-link" onclick="return confirm('Revert to this version?');">Rollback</button>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
+    }
+
     private static function render_automation() {
         ?>
         <h3>Automated Email Triggers</h3>
@@ -99,8 +178,9 @@ class Settings {
             <li><strong>Payment Failed</strong>: Sends an apology/retry link to client.</li>
             <li><strong>Gate Locked</strong>: Notifies client of pending items when they try to access restricted gallery.</li>
             <li><strong>Invoice Reminder</strong>: Sends reminder for due invoices.</li>
+            <li><strong>Gallery Expiry</strong>: Warns client before gallery access ends.</li>
+            <li><strong>Zip Ready</strong>: Notifies client when full download is built.</li>
         </ul>
-        <p><em>(Advanced configuration coming in next update)</em></p>
         <?php
     }
 

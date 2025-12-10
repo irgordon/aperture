@@ -59,8 +59,34 @@ function aperture_pro_init() {
         require_once plugin_dir_path(__FILE__) . 'includes/Frontend/Branding.php';
     }
     \AperturePro\Frontend\Branding::init();
+
+    // Schedule Queue Processing
+    if (!wp_next_scheduled('aperture_process_queue')) {
+        wp_schedule_event(time(), 'every_minute', 'aperture_process_queue');
+    }
 }
 add_action( 'plugins_loaded', 'aperture_pro_init' );
+
+// Add custom cron interval
+add_filter( 'cron_schedules', function( $schedules ) {
+    $schedules['every_minute'] = [
+        'interval' => 60,
+        'display'  => __( 'Every Minute' )
+    ];
+    return $schedules;
+});
+
+// Hook Queue Processing
+add_action('aperture_process_queue', function() {
+    if(class_exists('\AperturePro\Utils\Queue')) {
+        \AperturePro\Utils\Queue::process();
+    }
+});
+
+// Clean up on deactivation
+register_deactivation_hook( __FILE__, function() {
+    wp_clear_scheduled_hook('aperture_process_queue');
+});
 
 // 4. API Routes
 add_action( 'rest_api_init', function () {

@@ -9,7 +9,7 @@ class Installer {
         self::update_db_version();
         
         $upload = wp_upload_dir();
-        $dirs = ['aperture_contracts', 'aperture_proofs', 'aperture_temp', 'aperture_imports'];
+        $dirs = ['aperture_contracts', 'aperture_proofs', 'aperture_temp', 'aperture_imports', 'aperture_deliveries'];
         foreach($dirs as $d) {
             $path = $upload['basedir'] . '/' . $d;
             if(!file_exists($path)) @mkdir($path, 0755, true);
@@ -20,11 +20,6 @@ class Installer {
         global $wpdb;
         $charset = $wpdb->get_charset_collate();
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-        // dbDelta requires specific formatting:
-        // - Each field on its own line
-        // - Two spaces after PRIMARY KEY
-        // - No backticks around field names
 
         $sql = "
         CREATE TABLE {$wpdb->prefix}ap_contacts (
@@ -53,6 +48,10 @@ class Installer {
             project_value decimal(10,2),
             notes longtext,
             event_date date,
+            gallery_expiry datetime,
+            delivery_notes text,
+            zip_path varchar(255),
+            is_zip_ready boolean DEFAULT 0,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
         ) $charset;
@@ -110,6 +109,7 @@ class Installer {
             proof_id varchar(20),
             serial_number varchar(50),
             is_selected boolean DEFAULT 0,
+            status varchar(20) DEFAULT 'pending',
             is_downloadable boolean DEFAULT 0,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
@@ -120,6 +120,25 @@ class Installer {
             name varchar(100),
             subject varchar(255),
             body longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_email_template_versions (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            template_id mediumint(9),
+            subject varchar(255),
+            body longtext,
+            created_by bigint(20),
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_job_queue (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            type varchar(50),
+            payload_json longtext,
+            status varchar(20) DEFAULT 'pending',
+            attempts int DEFAULT 0,
+            last_attempt datetime,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
         ) $charset;
@@ -160,7 +179,9 @@ class Installer {
             ['slug'=>'photos_ready', 'name'=>'Photos Ready', 'subject'=>'Your Gallery is Ready', 'body'=>"Hi {client_name},\n\nView your photos here: {portal_link}"],
             ['slug'=>'invoice_reminder', 'name'=>'Invoice Reminder', 'subject'=>'Invoice Due', 'body'=>"Hi {client_name},\n\nPlease pay your invoice: {portal_link}"],
             ['slug'=>'payment_failed', 'name'=>'Payment Failed', 'subject'=>'Issue with your payment', 'body'=>"Hi {client_name},\n\nWe were unable to process your payment for Invoice #{invoice_number}. Please try again: {portal_link}"],
-            ['slug'=>'gate_locked', 'name'=>'Action Required', 'subject'=>'Access Restricted', 'body'=>"Hi {client_name},\n\nTo view your gallery, please complete the following items: {pending_items}."]
+            ['slug'=>'gate_locked', 'name'=>'Action Required', 'subject'=>'Access Restricted', 'body'=>"Hi {client_name},\n\nTo view your gallery, please complete the following items: {pending_items}."],
+            ['slug'=>'gallery_expiry', 'name'=>'Gallery Expiring Soon', 'subject'=>'Download your photos!', 'body'=>"Hi {client_name},\n\nYour gallery will expire on {expiry_date}. Please download your photos soon: {portal_link}"],
+            ['slug'=>'zip_ready', 'name'=>'Download Ready', 'subject'=>'Your photos are ready for download', 'body'=>"Hi {client_name},\n\nYour download is ready. Click here: {download_link}"]
         ];
 
         foreach($templates as $tpl) {
@@ -201,5 +222,5 @@ class Installer {
         }
     }
 
-    private static function update_db_version() { update_option('aperture_pro_db_version', '2.2.0'); }
+    private static function update_db_version() { update_option('aperture_pro_db_version', '2.3.0'); }
 }
