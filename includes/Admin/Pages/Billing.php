@@ -3,9 +3,17 @@ namespace AperturePro\Admin\Pages;
 
 class Billing {
     public static function render() {
+        $action = isset($_GET['action']) ? $_GET['action'] : 'list';
+
         // Handle Contract Editor
-        if (isset($_GET['action']) && $_GET['action'] == 'edit_contract') {
+        if ($action == 'edit_contract') {
             self::render_contract_editor();
+            return;
+        }
+
+        // Handle Invoice Editor (Placeholder/Basic Form)
+        if ($action == 'new_invoice') {
+            self::render_invoice_editor();
             return;
         }
 

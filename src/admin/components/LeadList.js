@@ -16,8 +16,12 @@ const LeadList = () => {
     ];
 
     useEffect(() => {
-        apiFetch({ path: '/aperture/v1/leads' }).then(setLeads);
+        fetchLeads();
     }, []);
+
+    const fetchLeads = () => {
+        apiFetch({ path: '/aperture/v1/leads' }).then(setLeads);
+    };
 
     const getLeadsByStage = (stage) => leads.filter(l => l.stage === stage);
 
@@ -92,7 +96,7 @@ const LeadList = () => {
                 <ProjectDetailModal 
                     project={selectedProject} 
                     onClose={() => setSelectedProject(null)} 
-                    onUpdate={() => apiFetch({ path: '/aperture/v1/leads' }).then(setLeads)} 
+                    onUpdate={fetchLeads}
                 />
             )}
         </div>

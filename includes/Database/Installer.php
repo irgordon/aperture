@@ -223,5 +223,5 @@ class Installer {
         }
     }
 
-    private static function update_db_version() { update_option('aperture_pro_db_version', '2.4.0'); }
+    private static function update_db_version() { update_option('aperture_pro_db_version', '2.5.0'); }
 }
