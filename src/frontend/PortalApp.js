@@ -2,35 +2,50 @@ import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import apiFetch from '@wordpress/api-fetch';
 import './portal.scss';
+import ProofingGallery from './components/ProofingGallery';
+import DeliveryView from './components/DeliveryView';
+// Import Invoice/Contract components if they exist (assuming simple placeholders for now to focus on Gallery)
 
 const PortalApp = () => {
     const [data, setData] = useState(null);
-    const [view, setView] = useState('home'); // home, invoice, contract, gallery
+    const [view, setView] = useState('home');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Get the hash from URL (e.g. /portal/xyz123)
-    const hash = window.location.pathname.split('/').pop();
+    // Parse hash from URL query param ?hash=... or path
+    const urlParams = new URLSearchParams(window.location.search);
+    const hash = urlParams.get('hash') || window.location.pathname.split('/').pop();
 
     useEffect(() => {
-        apiFetch({ path: `/aperture/v1/portal/${hash}` }).then(setData);
-    }, []);
+        if(!hash) { setError('No project hash found.'); setLoading(false); return; }
 
-    if (!data) return <div className="ap-loading">Loading your portal...</div>;
+        apiFetch({ path: `/aperture/v1/portal/project/${hash}` })
+            .then(res => { setData(res); setLoading(false); })
+            .catch(err => { setError(err.message); setLoading(false); });
+    }, [hash]);
 
-    const { client, project, progress } = data;
+    if (loading) return <div className="ap-loading">Loading your portal...</div>;
+    if (error) return <div className="ap-error">{error}</div>;
+
+    const { lead, invoices, contracts, branding } = data;
+    // We assume 'progress' logic (array of steps) was added to get_project_data response in API
+    const progressSteps = lead.progress || [];
 
     return (
         <div className="ap-portal">
+             <style>{`:root { --teal-primary: ${branding.primary_color || '#14b8a6'}; }`}</style>
+
             <aside className="portal-nav">
-                <div className="brand">AperturePro</div>
-                <div className="client-info">
-                    <div className="avatar">{client.first_name[0]}</div>
-                    <span>Welcome, {client.first_name}</span>
+                <div className="brand-logo">
+                    {branding.logo_url ? <img src={branding.logo_url} alt="Logo" /> : 'AperturePro'}
                 </div>
+
                 <nav>
                     <button className={view==='home'?'active':''} onClick={()=>setView('home')}>Dashboard</button>
-                    <button className={view==='invoice'?'active':''} onClick={()=>setView('invoice')}>Invoices</button>
-                    <button className={view==='contract'?'active':''} onClick={()=>setView('contract')}>Contracts</button>
+                    <button className={view==='invoice'?'active':''} onClick={()=>setView('invoice')}>Invoices ({invoices.length})</button>
+                    <button className={view==='contract'?'active':''} onClick={()=>setView('contract')}>Contracts ({contracts.length})</button>
                     <button className={view==='gallery'?'active':''} onClick={()=>setView('gallery')}>Gallery</button>
+                    <button className={view==='delivery'?'active':''} onClick={()=>setView('delivery')}>Delivery</button>
                 </nav>
             </aside>
 
@@ -38,40 +53,75 @@ const PortalApp = () => {
                 {view === 'home' && (
                     <div className="dashboard-view">
                         <header>
-                            <h1>{project.title}</h1>
-                            <span className="date">{project.event_date}</span>
+                            <h1>{lead.title}</h1>
+                            <span className="date">{lead.event_date}</span>
                         </header>
 
                         {/* Progress Tracker */}
                         <div className="progress-bar-container">
                             <div className="steps">
-                                {['Inquiry', 'Proposal', 'Contract', 'Booked', 'Gallery'].map((step, i) => (
-                                    <div key={step} className={`step ${i <= progress ? 'completed' : ''}`}>
-                                        <div className="circle">{i <= progress ? '✓' : i+1}</div>
-                                        <span>{step}</span>
+                                {progressSteps.map((step, i) => (
+                                    <div key={i} className={`step ${step.status}`}>
+                                        <div className="circle">{step.status==='completed' ? '✓' : i+1}</div>
+                                        <span>{step.label}</span>
                                     </div>
                                 ))}
                             </div>
-                            <div className="bar-bg"><div className="bar-fill" style={{width: `${progress * 25}%`}}></div></div>
                         </div>
 
                         <div className="cards-grid">
-                            <div className="card action-required">
-                                <h3>Action Required</h3>
-                                <p>You have 1 unpaid invoice.</p>
-                                <button onClick={()=>setView('invoice')}>Pay Now</button>
-                            </div>
-                            <div className="card">
-                                <h3>Your Team</h3>
-                                <p>Photographer: Ian Gordon</p>
-                                <a href="mailto:hello@iangordon.app">Contact Us</a>
-                            </div>
+                           {/* Widgets */}
+                           <div className="card">
+                               <h3>Welcome!</h3>
+                               <p>Track your project status here.</p>
+                           </div>
                         </div>
                     </div>
                 )}
                 
-                {/* Other views (Invoice/Contract) would use the components we built previously */}
-                {view === 'invoice' && <div><InvoiceComponent data={data.invoices} /></div>}
+                {view === 'gallery' && (
+                    <div className="gallery-view">
+                        <h2>Proofing Gallery</h2>
+                        {/* We assume lead has an ID we can map to album ID, or API handles it.
+                            Using lead.id as albumId for now based on previous context */}
+                        <ProofingGallery albumId={lead.id} hash={hash} />
+                    </div>
+                )}
+
+                {view === 'delivery' && (
+                    <DeliveryView hash={hash} branding={branding} />
+                )}
+
+                {view === 'invoice' && (
+                    <div className="view-container">
+                        <h2>Invoices</h2>
+                        <ul className="invoice-list">
+                            {invoices.map(inv => (
+                                <li key={inv.id} className="item-row">
+                                    <span>#{inv.invoice_number}</span>
+                                    <span>${inv.amount}</span>
+                                    <span className={`status ${inv.status}`}>{inv.status}</span>
+                                    {inv.status !== 'paid' && <a href={`/invoices/public/${inv.id}?hash=${hash}`} target="_blank" className="btn-small">Pay</a>}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {view === 'contract' && (
+                     <div className="view-container">
+                        <h2>Contracts</h2>
+                        <ul>
+                             {contracts.map(c => (
+                                <li key={c.id} className="item-row">
+                                    <span>Contract #{c.id}</span>
+                                    <span className={`status ${c.status}`}>{c.status}</span>
+                                    {/* Link to sign would go here */}
+                                </li>
+                             ))}
+                        </ul>
+                     </div>
+                )}
             </main>
         </div>
     );
