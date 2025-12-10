@@ -53,6 +53,12 @@ function aperture_pro_init() {
     // Frontend logic
     \AperturePro\Frontend\Shortcode::init();
     \AperturePro\Frontend\Portal_Shortcode::init();
+
+    // Dynamic Branding
+    if(!class_exists('AperturePro\\Frontend\\Branding')) {
+        require_once plugin_dir_path(__FILE__) . 'includes/Frontend/Branding.php';
+    }
+    \AperturePro\Frontend\Branding::init();
 }
 add_action( 'plugins_loaded', 'aperture_pro_init' );
 

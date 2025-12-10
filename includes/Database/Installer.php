@@ -137,6 +137,15 @@ class Installer {
             submitted_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
         ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_logs (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            type varchar(50),
+            message text,
+            context_json longtext,
+            user_id bigint(20) UNSIGNED,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
         ";
 
         dbDelta($sql);
@@ -145,11 +154,22 @@ class Installer {
     private static function seed_email_templates() {
         global $wpdb;
         $table = $wpdb->prefix . 'ap_email_templates';
-        if ($wpdb->get_var("SELECT COUNT(*) FROM $table") == 0) {
-            $wpdb->insert($table, ['slug'=>'new_inquiry', 'name'=>'New Inquiry', 'subject'=>'We received your inquiry!', 'body'=>"Dear {client_name},\n\nThank you for reaching out! We'll be in touch shortly."]);
-            $wpdb->insert($table, ['slug'=>'photos_ready', 'name'=>'Photos Ready', 'subject'=>'Your Gallery is Ready', 'body'=>"Hi {client_name},\n\nView your photos here: {portal_link}"]);
-            $wpdb->insert($table, ['slug'=>'invoice_reminder', 'name'=>'Invoice Reminder', 'subject'=>'Invoice Due', 'body'=>"Hi {client_name},\n\nPlease pay your invoice: {portal_link}"]);
+
+        $templates = [
+            ['slug'=>'new_inquiry', 'name'=>'New Inquiry', 'subject'=>'We received your inquiry!', 'body'=>"Dear {client_name},\n\nThank you for reaching out! We'll be in touch shortly."],
+            ['slug'=>'photos_ready', 'name'=>'Photos Ready', 'subject'=>'Your Gallery is Ready', 'body'=>"Hi {client_name},\n\nView your photos here: {portal_link}"],
+            ['slug'=>'invoice_reminder', 'name'=>'Invoice Reminder', 'subject'=>'Invoice Due', 'body'=>"Hi {client_name},\n\nPlease pay your invoice: {portal_link}"],
+            ['slug'=>'payment_failed', 'name'=>'Payment Failed', 'subject'=>'Issue with your payment', 'body'=>"Hi {client_name},\n\nWe were unable to process your payment for Invoice #{invoice_number}. Please try again: {portal_link}"],
+            ['slug'=>'gate_locked', 'name'=>'Action Required', 'subject'=>'Access Restricted', 'body'=>"Hi {client_name},\n\nTo view your gallery, please complete the following items: {pending_items}."]
+        ];
+
+        foreach($templates as $tpl) {
+            $exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $table WHERE slug = %s", $tpl['slug']));
+            if (!$exists) {
+                $wpdb->insert($table, $tpl);
+            }
         }
+
         $pkg_table = $wpdb->prefix . 'ap_packages';
         if ($wpdb->get_var("SELECT COUNT(*) FROM $pkg_table") == 0) {
             $wpdb->insert($pkg_table, ['name'=>'Wedding Essentials', 'description'=>'8 hours', 'price'=>2500.00, 'deliverables_json'=>json_encode(['8 Hours', 'Gallery'])]);
@@ -181,5 +201,5 @@ class Installer {
         }
     }
 
-    private static function update_db_version() { update_option('aperture_pro_db_version', '2.1.0'); }
+    private static function update_db_version() { update_option('aperture_pro_db_version', '2.2.0'); }
 }

@@ -17,10 +17,15 @@ class Invoices_Controller extends WP_REST_Controller {
             'callback' => [ $this, 'create_invoice' ],
             'permission_callback' => function() { return current_user_can('manage_options'); }
         ]);
-        // Public invoice endpoint - Secured by Project Hash
         register_rest_route( $this->namespace, '/invoices/public/(?P<id>\d+)', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => [ $this, 'get_public_invoice' ],
+            'permission_callback' => '__return_true'
+        ]);
+        // Webhook endpoint for Stripe
+        register_rest_route( $this->namespace, '/invoices/webhook', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => [ $this, 'handle_webhook' ],
             'permission_callback' => '__return_true'
         ]);
     }
@@ -48,7 +53,7 @@ class Invoices_Controller extends WP_REST_Controller {
                 $intent = PaymentIntent::create(['amount' => round($total * 100), 'currency' => 'usd']);
                 $intent_id = $intent->id;
             } catch (\Exception $e) {
-                // Log error or continue without Stripe
+                \AperturePro\Utils\Logger::log('error', 'Stripe Intent Creation Failed', ['error' => $e->getMessage()]);
             }
         }
         
@@ -70,16 +75,13 @@ class Invoices_Controller extends WP_REST_Controller {
         $id = (int)$request['id'];
         $hash = isset($request['hash']) ? sanitize_text_field($request['hash']) : '';
 
-        // Security Check: Validate that the invoice belongs to the project hash provided
-        // or check if the user is an admin
-
         if ( current_user_can('manage_options') ) {
-             // Admin can view any invoice
+             // Admin
         } elseif ( empty($hash) ) {
              return new \WP_Error('forbidden', 'Project Hash required', ['status'=>403]);
         }
 
-        $query = "SELECT i.*, c.first_name, c.last_name
+        $query = "SELECT i.*, c.first_name, c.last_name, c.email
                   FROM {$wpdb->prefix}ap_invoices i
                   JOIN {$wpdb->prefix}ap_leads l ON i.lead_id = l.id
                   JOIN {$wpdb->prefix}ap_contacts c ON l.contact_id = c.id
@@ -103,7 +105,20 @@ class Invoices_Controller extends WP_REST_Controller {
                 Stripe::setApiKey($stripe_key);
                 $intent = PaymentIntent::retrieve($invoice->stripe_intent_id);
                 $client_secret = $intent->client_secret;
-            } catch(\Exception $e) {}
+
+                // Check if payment failed recently (simulated check here as we can't get real time events without webhook)
+                if ($intent->status === 'requires_payment_method' && $intent->last_payment_error) {
+                    \AperturePro\Utils\Automation::trigger('payment_failed', [
+                        'email' => $invoice->email,
+                        'client_name' => $invoice->first_name,
+                        'invoice_number' => $invoice->invoice_number,
+                        'portal_link' => home_url("/client-portal/?hash=$hash")
+                    ]);
+                }
+
+            } catch(\Exception $e) {
+                \AperturePro\Utils\Logger::log('error', 'Stripe Retrieval Failed', ['error' => $e->getMessage()]);
+            }
         }
 
         return rest_ensure_response([
@@ -111,5 +126,10 @@ class Invoices_Controller extends WP_REST_Controller {
             'branding' => ['company_name' => get_option('aperture_company_name'), 'logo_url' => get_option('aperture_logo_url')],
             'client_secret' => $client_secret
         ]);
+    }
+
+    public function handle_webhook($request) {
+        // Placeholder for real webhook handling
+        return new WP_REST_Response(['status'=>'received']);
     }
 }
