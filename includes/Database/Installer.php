@@ -162,6 +162,7 @@ class Installer {
             message text,
             context_json longtext,
             user_id bigint(20) UNSIGNED,
+            ip_address varchar(45),
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
         ) $charset;
@@ -222,5 +223,5 @@ class Installer {
         }
     }
 
-    private static function update_db_version() { update_option('aperture_pro_db_version', '2.3.0'); }
+    private static function update_db_version() { update_option('aperture_pro_db_version', '2.4.0'); }
 }

@@ -13,6 +13,7 @@ class Settings {
                 <a href="?page=aperture-settings&tab=templates" class="nav-tab <?php echo $active_tab == 'templates' ? 'nav-tab-active' : ''; ?>">Templates</a>
                 <a href="?page=aperture-settings&tab=automation" class="nav-tab <?php echo $active_tab == 'automation' ? 'nav-tab-active' : ''; ?>">Automation</a>
                 <a href="?page=aperture-settings&tab=logs" class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
+                <a href="?page=aperture-settings&tab=system" class="nav-tab <?php echo $active_tab == 'system' ? 'nav-tab-active' : ''; ?>">System</a>
             </h2>
 
             <form method="post" action="">
@@ -28,6 +29,8 @@ class Settings {
                     <?php self::render_automation(); ?>
                 <?php elseif($active_tab == 'logs'): ?>
                     <?php self::render_logs(); ?>
+                <?php elseif($active_tab == 'system'): ?>
+                    <?php self::render_system(); ?>
                 <?php endif; ?>
 
                 <?php if($active_tab == 'general' || $active_tab == 'branding') submit_button(); ?>
@@ -185,25 +188,140 @@ class Settings {
     }
 
     private static function render_logs() {
-        $logs = \AperturePro\Utils\Logger::get_logs(20);
+        $filter = isset($_GET['log_type']) ? sanitize_text_field($_GET['log_type']) : '';
+        $logs = \AperturePro\Utils\Logger::get_logs(50, $filter);
+
         ?>
+        <div class="tablenav top">
+            <div class="alignleft actions">
+                <select name="log_type_filter" onchange="window.location.href='?page=aperture-settings&tab=logs&log_type='+this.value">
+                    <option value="">All Types</option>
+                    <option value="error" <?php selected($filter, 'error'); ?>>Errors</option>
+                    <option value="email_sent" <?php selected($filter, 'email_sent'); ?>>Emails</option>
+                    <option value="gate_locked" <?php selected($filter, 'gate_locked'); ?>>Access Denied</option>
+                </select>
+                <!-- Export CSV Button (Simple Link) -->
+                <a href="<?php echo esc_url(rest_url('aperture/v1/export/logs')); ?>" class="button" target="_blank">Export CSV</a>
+            </div>
+        </div>
+
         <table class="widefat fixed striped">
-            <thead><tr><th>Date</th><th>Type</th><th>Message</th><th>Context</th></tr></thead>
+            <thead><tr><th>Date</th><th>Type</th><th>Message</th><th>User</th><th>IP</th><th>Context</th></tr></thead>
             <tbody>
                 <?php if(empty($logs)): ?>
-                    <tr><td colspan="4">No logs found.</td></tr>
+                    <tr><td colspan="6">No logs found.</td></tr>
                 <?php else: ?>
                     <?php foreach($logs as $log): ?>
                     <tr>
                         <td><?php echo $log->created_at; ?></td>
                         <td><?php echo esc_html($log->type); ?></td>
                         <td><?php echo esc_html($log->message); ?></td>
+                        <td><?php echo $log->user_id ? get_userdata($log->user_id)->user_login : '-'; ?></td>
+                        <td><?php echo esc_html($log->ip_address); ?></td>
                         <td><pre style="white-space: pre-wrap; font-size: 10px;"><?php echo esc_html($log->context_json); ?></pre></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
         </table>
+        <?php
+    }
+
+    private static function render_system() {
+        // Handle Actions
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['system_action'])) {
+            check_admin_referer('save_settings', 'aperture_settings_nonce');
+            $action = $_POST['system_action'];
+
+            if ($action === 'retry_job') {
+                \AperturePro\Utils\Queue::retry(intval($_POST['job_id']));
+                echo '<div class="notice notice-success"><p>Job requeued.</p></div>';
+            } elseif ($action === 'cancel_job') {
+                \AperturePro\Utils\Queue::cancel(intval($_POST['job_id']));
+                echo '<div class="notice notice-warning"><p>Job cancelled.</p></div>';
+            } elseif ($action === 'restore_settings') {
+                // Simplified Restore: Accept JSON paste
+                $json = stripslashes($_POST['restore_json']);
+                $data = json_decode($json, true);
+                if ($data) {
+                    if(isset($data['options'])) {
+                        foreach($data['options'] as $key => $val) update_option($key, $val);
+                    }
+                    echo '<div class="notice notice-success"><p>Settings restored.</p></div>';
+                } else {
+                    echo '<div class="notice notice-error"><p>Invalid JSON.</p></div>';
+                }
+            }
+        }
+
+        $jobs = \AperturePro\Utils\Queue::get_jobs('', 20);
+        $stats = \AperturePro\Utils\Queue::get_stats();
+
+        // Prepare Backup Data (Options only for now)
+        $backup_data = [
+            'options' => [
+                'aperture_company_name' => get_option('aperture_company_name'),
+                'aperture_brand_primary' => get_option('aperture_brand_primary'),
+                // ... others
+            ]
+        ];
+        $backup_json = json_encode($backup_data, JSON_PRETTY_PRINT);
+        ?>
+
+        <h3>Job Queue</h3>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <?php foreach($stats as $s): ?>
+                <div class="card">
+                    <strong><?php echo ucfirst($s['status']); ?></strong>: <?php echo $s['count']; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <table class="widefat fixed striped">
+            <thead><tr><th>ID</th><th>Type</th><th>Status</th><th>Attempts</th><th>Last Attempt</th><th>Actions</th></tr></thead>
+            <tbody>
+                <?php if(empty($jobs)): ?>
+                    <tr><td colspan="6">Queue is empty.</td></tr>
+                <?php else: ?>
+                    <?php foreach($jobs as $job): ?>
+                    <tr>
+                        <td><?php echo $job->id; ?></td>
+                        <td><?php echo esc_html($job->type); ?></td>
+                        <td>
+                            <span class="badge badge-<?php echo $job->status; ?>"><?php echo $job->status; ?></span>
+                        </td>
+                        <td><?php echo $job->attempts; ?></td>
+                        <td><?php echo $job->last_attempt; ?></td>
+                        <td>
+                            <?php if($job->status === 'failed' || $job->status === 'cancelled'): ?>
+                                <button type="submit" name="system_action" value="retry_job" class="button-small">Retry</button>
+                                <input type="hidden" name="job_id" value="<?php echo $job->id; ?>">
+                            <?php elseif($job->status === 'pending'): ?>
+                                <button type="submit" name="system_action" value="cancel_job" class="button-small">Cancel</button>
+                                <input type="hidden" name="job_id" value="<?php echo $job->id; ?>">
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
+        <hr>
+        <h3>Backup & Restore</h3>
+        <div style="display:flex; gap:20px;">
+            <div style="flex:1;">
+                <h4>Backup Configuration</h4>
+                <p>Copy this JSON to save your settings.</p>
+                <textarea class="large-text code" rows="5" readonly><?php echo esc_textarea($backup_json); ?></textarea>
+            </div>
+            <div style="flex:1;">
+                <h4>Restore Configuration</h4>
+                <p>Paste JSON here to restore settings.</p>
+                <textarea name="restore_json" class="large-text code" rows="5"></textarea>
+                <button type="submit" name="system_action" value="restore_settings" class="button button-primary" onclick="return confirm('Overwrite settings?');">Restore</button>
+            </div>
+        </div>
         <?php
     }
 }
