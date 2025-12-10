@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AperturePro CRM
  * Description: Complete privacy-focused photography business management system.
- * Version: 2.1.0
+ * Version: 2.4.0
  * Author: AperturePro
  * Author URI: https://aperturepro.app
  */
