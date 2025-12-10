@@ -20,18 +20,124 @@ class Installer {
         global $wpdb;
         $charset = $wpdb->get_charset_collate();
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        $sql = [];
 
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_contacts (id mediumint(9) NOT NULL AUTO_INCREMENT, user_id bigint(20) UNSIGNED, first_name varchar(100), last_name varchar(100), email varchar(100), phone varchar(50), address text, verification_token varchar(100), is_verified boolean DEFAULT 0, password_hash varchar(255), created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id), KEY email (email)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_leads (id mediumint(9) NOT NULL AUTO_INCREMENT, contact_id mediumint(9), project_hash varchar(64) UNIQUE, title varchar(255), status varchar(50) DEFAULT 'new', stage varchar(50) DEFAULT 'inquiry', source varchar(100), project_value decimal(10,2), notes longtext, event_date date, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_tasks (id mediumint(9) NOT NULL AUTO_INCREMENT, lead_id mediumint(9), description varchar(255), is_completed boolean DEFAULT 0, due_date date, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_invoices (id mediumint(9) NOT NULL AUTO_INCREMENT, lead_id mediumint(9), stripe_intent_id varchar(255), invoice_number varchar(50), items_json longtext, amount decimal(10,2), total_amount decimal(10,2), amount_paid decimal(10,2) DEFAULT '0.00', status varchar(20) DEFAULT 'unpaid', due_date date, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_contracts (id mediumint(9) NOT NULL AUTO_INCREMENT, lead_id mediumint(9), content longtext, client_signature longtext, admin_signature longtext, status varchar(20) DEFAULT 'draft', pdf_path varchar(255), signed_at datetime, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_packages (id mediumint(9) NOT NULL AUTO_INCREMENT, name varchar(255), description text, price decimal(10,2), deliverables_json longtext, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_gallery_images (id mediumint(9) NOT NULL AUTO_INCREMENT, album_id mediumint(9), lead_id mediumint(9), file_name varchar(255), file_path varchar(255), public_url varchar(255), proof_id varchar(20), serial_number varchar(50), is_selected boolean DEFAULT 0, is_downloadable boolean DEFAULT 0, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_email_templates (id mediumint(9) NOT NULL AUTO_INCREMENT, slug varchar(50) UNIQUE, name varchar(100), subject varchar(255), body longtext, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_questionnaires (id mediumint(9) NOT NULL AUTO_INCREMENT, title varchar(255), schema_json longtext, created_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
-        $sql[] = "CREATE TABLE {$wpdb->prefix}ap_responses (id mediumint(9) NOT NULL AUTO_INCREMENT, questionnaire_id mediumint(9), answers_json longtext, submitted_at datetime DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)) $charset;";
+        // dbDelta requires specific formatting:
+        // - Each field on its own line
+        // - Two spaces after PRIMARY KEY
+        // - No backticks around field names
+
+        $sql = "
+        CREATE TABLE {$wpdb->prefix}ap_contacts (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED,
+            first_name varchar(100),
+            last_name varchar(100),
+            email varchar(100),
+            phone varchar(50),
+            address text,
+            verification_token varchar(100),
+            is_verified boolean DEFAULT 0,
+            password_hash varchar(255),
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY email (email)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_leads (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            contact_id mediumint(9),
+            project_hash varchar(64) UNIQUE,
+            title varchar(255),
+            status varchar(50) DEFAULT 'new',
+            stage varchar(50) DEFAULT 'inquiry',
+            source varchar(100),
+            project_value decimal(10,2),
+            notes longtext,
+            event_date date,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_tasks (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            lead_id mediumint(9),
+            description varchar(255),
+            is_completed boolean DEFAULT 0,
+            due_date date,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_invoices (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            lead_id mediumint(9),
+            stripe_intent_id varchar(255),
+            invoice_number varchar(50),
+            items_json longtext,
+            amount decimal(10,2),
+            total_amount decimal(10,2),
+            amount_paid decimal(10,2) DEFAULT '0.00',
+            status varchar(20) DEFAULT 'unpaid',
+            due_date date,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_contracts (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            lead_id mediumint(9),
+            content longtext,
+            client_signature longtext,
+            admin_signature longtext,
+            status varchar(20) DEFAULT 'draft',
+            pdf_path varchar(255),
+            signed_at datetime,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_packages (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            name varchar(255),
+            description text,
+            price decimal(10,2),
+            deliverables_json longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_gallery_images (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            album_id mediumint(9),
+            lead_id mediumint(9),
+            file_name varchar(255),
+            file_path varchar(255),
+            public_url varchar(255),
+            proof_id varchar(20),
+            serial_number varchar(50),
+            is_selected boolean DEFAULT 0,
+            is_downloadable boolean DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_email_templates (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            slug varchar(50) UNIQUE,
+            name varchar(100),
+            subject varchar(255),
+            body longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_questionnaires (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            title varchar(255),
+            schema_json longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        CREATE TABLE {$wpdb->prefix}ap_responses (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            questionnaire_id mediumint(9),
+            answers_json longtext,
+            submitted_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id)
+        ) $charset;
+        ";
 
         dbDelta($sql);
     }
@@ -51,8 +157,28 @@ class Installer {
     }
 
     private static function create_default_pages() {
-        if (!get_page_by_path('client-portal')) wp_insert_post(['post_title'=>'Client Portal', 'post_name'=>'client-portal', 'post_content'=>'[aperture_client_portal]', 'post_status'=>'publish', 'post_type'=>'page']);
-        if (!get_page_by_path('contact-us')) wp_insert_post(['post_title'=>'Contact Us', 'post_name'=>'contact-us', 'post_content'=>'[aperture_contact_form]', 'post_status'=>'publish', 'post_type'=>'page']);
+        // Check option first to avoid creating duplicates if page was renamed
+        $portal_page_id = get_option('aperture_portal_page_id');
+        if (!$portal_page_id || !get_post($portal_page_id)) {
+            $existing = get_page_by_path('client-portal');
+            if ($existing) {
+                 update_option('aperture_portal_page_id', $existing->ID);
+            } else {
+                $id = wp_insert_post(['post_title'=>'Client Portal', 'post_name'=>'client-portal', 'post_content'=>'[aperture_client_portal]', 'post_status'=>'publish', 'post_type'=>'page']);
+                if ($id) update_option('aperture_portal_page_id', $id);
+            }
+        }
+
+        $contact_page_id = get_option('aperture_contact_page_id');
+        if (!$contact_page_id || !get_post($contact_page_id)) {
+            $existing = get_page_by_path('contact-us');
+            if ($existing) {
+                 update_option('aperture_contact_page_id', $existing->ID);
+            } else {
+                $id = wp_insert_post(['post_title'=>'Contact Us', 'post_name'=>'contact-us', 'post_content'=>'[aperture_contact_form]', 'post_status'=>'publish', 'post_type'=>'page']);
+                if ($id) update_option('aperture_contact_page_id', $id);
+            }
+        }
     }
 
     private static function update_db_version() { update_option('aperture_pro_db_version', '2.1.0'); }
