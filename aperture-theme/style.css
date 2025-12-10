@@ -4,7 +4,7 @@ Theme URI: https://aperturepro.app
 Author: AperturePro
 Author URI: https://aperturepro.app
 Description: A modern SaaS-style WordPress theme designed for AperturePro CRM.
-Version: 1.0.0
+Version: 1.1.0
 License: GPLv2 or later
 Text Domain: aperture-theme
 */
@@ -71,19 +71,42 @@ img {
     padding: 0 20px;
 }
 
+/* --- Header --- */
 .site-header {
     background: var(--white);
     border-bottom: 1px solid var(--slate-200);
-    padding: 20px 0;
+    padding: 15px 0;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
 }
 
-.site-header .container {
+.header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+}
+
+.header-social {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+}
+
+.header-social a {
+    color: var(--slate-600);
+    font-size: 20px;
+}
+
+.header-social a:hover {
+    color: var(--teal-primary);
+}
+
+.site-branding {
+    flex: 1;
+    display: flex;
+    justify-content: center;
 }
 
 .site-branding a {
@@ -93,76 +116,298 @@ img {
     display: flex;
     align-items: center;
     gap: 8px;
+    text-transform: uppercase;
+}
+
+.header-menu-toggle {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--slate-600);
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Navigation Overlay */
+.main-navigation {
+    display: none;
+    background: var(--white);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    border-bottom: 1px solid var(--slate-200);
+    padding: 20px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.main-navigation.active {
+    display: block;
+    animation: slideDown 0.3s ease;
 }
 
 .main-navigation ul {
-    display: flex;
-    gap: 24px;
     list-style: none;
     margin: 0;
     padding: 0;
+    text-align: center;
+}
+
+.main-navigation li {
+    margin: 10px 0;
 }
 
 .main-navigation a {
+    font-size: 18px;
+    font-weight: 600;
     color: var(--slate-600);
-    font-weight: 500;
-    font-size: 15px;
+    display: block;
+    padding: 10px;
 }
 
 .main-navigation a:hover {
     color: var(--teal-primary);
+    background: var(--bg-body);
 }
 
-/* Mobile Menu */
-@media (max-width: 768px) {
-    .site-header .container {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .main-navigation ul {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-    }
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.site-content {
-    padding: 40px 0;
-    min-height: calc(100vh - 160px);
-}
-
-.site-footer {
-    background: var(--white);
-    border-top: 1px solid var(--slate-200);
-    padding: 30px 0;
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
     text-align: center;
-    color: var(--slate-600);
-    font-size: 14px;
+    margin-bottom: 40px;
+    overflow: hidden;
 }
 
-/* --- Components --- */
+.hero-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* Slate-900 with opacity */
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: var(--white);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-message {
+    font-size: 20px;
+    margin-bottom: 30px;
+    color: var(--slate-200);
+}
+
+/* --- Buttons --- */
 .btn {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 12px 24px;
     background: var(--teal-primary);
     color: var(--white);
     border-radius: var(--radius-btn);
-    font-weight: 600;
+    font-weight: 700;
     border: none;
     cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
 }
 
 .btn:hover {
     background: var(--teal-dark);
     color: var(--white);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
 }
 
-/* --- Plugin Compatibility & Page Styles --- */
-.page-title {
+.btn-hero {
+    font-size: 18px;
+    padding: 16px 32px;
+}
+
+/* --- Lead Capture Section --- */
+.lead-capture-section {
+    background: var(--white);
+    padding: 80px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--slate-200);
+}
+
+.lead-form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.lead-form-wrapper h2 {
     font-size: 32px;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
+    color: var(--teal-dark);
+}
+
+.lead-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.lead-form input {
+    flex: 1;
+    padding: 14px;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-btn);
+    font-size: 16px;
+}
+
+.lead-form input:focus {
+    outline: none;
+    border-color: var(--teal-primary);
+    box-shadow: 0 0 0 3px var(--teal-light);
+}
+
+#form-message {
+    margin-top: 20px;
+    font-weight: 600;
+    font-size: 14px;
+}
+#form-message.success { color: #10b981; }
+#form-message.error { color: var(--coral); }
+
+@media (max-width: 600px) {
+    .lead-form { flex-direction: column; }
+    .lead-form button { width: 100%; }
+}
+
+/* --- Gallery Section --- */
+.gallery-section {
+    padding: 80px 0;
+}
+
+.gallery-section h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 32px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.gallery-item {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s;
+    background: var(--slate-200); /* placeholder bg */
+    aspect-ratio: 1; /* Square */
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.gallery-item:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-hover);
+}
+
+/* --- Spacer --- */
+.spacer-block {
+    height: 80px;
+    background: var(--bg-body);
+}
+
+/* --- Footer --- */
+.site-footer {
+    background: var(--white);
+    border-top: 1px solid var(--slate-200);
+    padding: 40px 0;
+    font-size: 14px;
+    color: var(--slate-600);
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-right {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-right a {
+    color: var(--slate-600);
+    font-weight: 500;
+}
+
+.footer-right a:hover {
+    color: var(--teal-primary);
+}
+
+.footer-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    .footer-right {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .footer-menu {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero-title { font-size: 32px; }
+}
+
+/* --- Page/Post Content --- */
+.page-title {
+    font-size: 36px;
+    margin-bottom: 40px;
     text-align: center;
 }
 
@@ -172,22 +417,11 @@ img {
     box-shadow: var(--shadow-card);
     padding: 40px;
     border: 1px solid var(--slate-200);
+    margin-bottom: 40px;
 }
 
 @media (max-width: 768px) {
     .entry-content {
         padding: 20px;
     }
-}
-
-/* Specific Wrapper for Aperture Portal */
-#aperture-client-portal,
-#aperture-pro-contact-form {
-    width: 100%;
-}
-
-/* If the shortcode renders into a container, ensure it doesn't overflow */
-#aperture-client-portal .ap-portal-dash,
-#aperture-pro-contact-form form {
-    max-width: 100%;
 }

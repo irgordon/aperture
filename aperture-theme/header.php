@@ -9,7 +9,15 @@
 <?php wp_body_open(); ?>
 
 <header class="site-header">
-    <div class="container">
+    <div class="header-container container">
+        <!-- Left: Social Icons -->
+        <div class="header-social">
+            <a href="#" aria-label="Instagram"><span class="dashicons dashicons-camera"></span></a>
+            <a href="#" aria-label="Facebook"><span class="dashicons dashicons-facebook"></span></a>
+            <a href="#" aria-label="Twitter"><span class="dashicons dashicons-twitter"></span></a>
+        </div>
+
+        <!-- Center: Logo -->
         <div class="site-branding">
             <?php
             if ( has_custom_logo() ) {
@@ -20,16 +28,22 @@
             ?>
         </div>
 
-        <nav class="main-navigation">
-            <?php
-            wp_nav_menu( [
-                'theme_location' => 'primary',
-                'menu_id'        => 'primary-menu',
-                'fallback_cb'    => false,
-            ] );
-            ?>
-        </nav>
+        <!-- Right: Hamburger Menu -->
+        <div class="header-menu-toggle">
+            <button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false">
+                <span class="dashicons dashicons-menu-alt3"></span>
+            </button>
+        </div>
     </div>
-</header>
 
-<div id="content" class="site-content">
+    <!-- Slide-out/Dropdown Navigation -->
+    <nav class="main-navigation">
+        <?php
+        wp_nav_menu( [
+            'theme_location' => 'primary',
+            'menu_id'        => 'primary-menu',
+            'container'      => false,
+        ] );
+        ?>
+    </nav>
+</header>
